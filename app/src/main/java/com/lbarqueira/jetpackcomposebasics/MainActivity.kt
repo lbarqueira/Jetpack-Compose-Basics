@@ -5,17 +5,16 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Devices.NEXUS_6
@@ -85,10 +84,23 @@ fun NameList(names: List<String>, modifier: Modifier) {
 // as you can see:
 @Composable
 fun Greeting(name: String) {
+    // As isSelected state is hoisted in the Greeting composable, the NameList will not keep
+    // track if its items are selected or not. Once items are scrolled out of the screen,
+    // their states will be set to false.
+    // To keep track of selected items in the list, their isSelected state should be hoisted at the NameList level.
+    var isSelected by remember { mutableStateOf(false) }
+    val backgroundColor by animateColorAsState(if (isSelected) Color.Red else Color.Transparent)
     // Modifier parameters tell a UI element how to lay out, display,
     // or behave within its parent layout. Modifiers are regular Kotlin objects.
     Surface(color = Color.Yellow) {
-        Text(text = "Hello $name!", modifier = Modifier.padding(all = 24.dp))
+        Text(
+            text = "Hello $name!",
+            modifier = Modifier
+                .padding(all = 24.dp)
+                .background(color = backgroundColor)
+                .clickable(onClick = { isSelected = !isSelected }),
+            style = MaterialTheme.typography.h1
+        )
     }
 
 }
